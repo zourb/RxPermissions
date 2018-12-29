@@ -14,7 +14,7 @@ import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.IOException;
 
-import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 
@@ -24,7 +24,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Camera camera;
     private SurfaceView surfaceView;
-    private Disposable disposable;
+
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +35,15 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.act_main);
         surfaceView = findViewById(R.id.surfaceView);
+        compositeDisposable.add(rxPermissions.requestEach(permission.READ_EXTERNAL_STORAGE, permission.WRITE_EXTERNAL_STORAGE, permission.SEND_SMS)
+                .subscribe(new Consumer<Permission>() {
+                    @Override
+                    public void accept(Permission permission) throws Exception {
 
-        disposable = RxView.clicks(findViewById(R.id.enableCamera))
+                    }
+                }));
+
+        compositeDisposable.add(RxView.clicks(findViewById(R.id.enableCamera))
                 // Ask for permissions when button is clicked
                 .compose(rxPermissions.ensureEach(permission.CAMERA))
                 .subscribe(new Consumer<Permission>() {
@@ -76,14 +84,12 @@ public class MainActivity extends AppCompatActivity {
                             public void run() {
                                 Log.i(TAG, "OnComplete");
                             }
-                        });
+                        }));
     }
 
     @Override
     protected void onDestroy() {
-        if (disposable != null && !disposable.isDisposed()) {
-            disposable.dispose();
-        }
+        compositeDisposable.clear();
         super.onDestroy();
     }
 

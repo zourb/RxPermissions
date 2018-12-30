@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Consumer<Permission>() {
                     @Override
                     public void accept(Permission permission) throws Exception {
-
+                        Log.i(TAG, permission.toString());
                     }
                 }));
 

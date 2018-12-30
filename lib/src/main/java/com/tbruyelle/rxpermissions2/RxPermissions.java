@@ -245,13 +245,22 @@ public class RxPermissions {
             }
 
             PublishSubject<Permission> subject = mRxPermissionsFragment.get().getSubjectByPermission(permission);
-            // Create a new subject if not exists
-            if (subject == null) {
-                unrequestedPermissions.add(permission);
-                subject = PublishSubject.create();
-                mRxPermissionsFragment.get().setSubjectForPermission(permission, subject);
+            if (subject != null) {
+                list.add(subject);
+                continue;
             }
 
+            if (mRxPermissionsFragment.get().hasCurrentPermissionsRequest()) {
+                Permission p = new Permission(permission, false, mRxPermissionsFragment.get().shouldShowRequestPermissionRationale(permission));
+                list.add(Observable.just(p));
+                continue;
+            }
+
+            // Create a new subject if not exists
+
+            unrequestedPermissions.add(permission);
+            subject = PublishSubject.create();
+            mRxPermissionsFragment.get().setSubjectForPermission(permission, subject);
             list.add(subject);
         }
 

@@ -23,6 +23,8 @@ public class RxPermissionsFragment extends Fragment {
     private Map<String, PublishSubject<Permission>> mSubjects = new HashMap<>();
     private boolean mLogging;
 
+    private boolean mHasCurrentPermissionsRequest;
+
     public RxPermissionsFragment() {
     }
 
@@ -35,11 +37,14 @@ public class RxPermissionsFragment extends Fragment {
     @TargetApi(Build.VERSION_CODES.M)
     void requestPermissions(@NonNull String[] permissions) {
         requestPermissions(permissions, PERMISSIONS_REQUEST_CODE);
+        mHasCurrentPermissionsRequest = true;
     }
 
     @TargetApi(Build.VERSION_CODES.M)
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        mHasCurrentPermissionsRequest = false;
 
         if (requestCode != PERMISSIONS_REQUEST_CODE) return;
 
@@ -101,6 +106,10 @@ public class RxPermissionsFragment extends Fragment {
 
     public void setSubjectForPermission(@NonNull String permission, @NonNull PublishSubject<Permission> subject) {
         mSubjects.put(permission, subject);
+    }
+
+    public boolean hasCurrentPermissionsRequest() {
+        return mHasCurrentPermissionsRequest;
     }
 
     void log(String message) {
